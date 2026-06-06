@@ -78,12 +78,12 @@
 
 ## Phase 5 — Frontend: Auth (Clerk)
 
-- [ ] **5.1** Install `@clerk/clerk-react`
-- [ ] **5.2** Wrap app in `<ClerkProvider>` with `VITE_CLERK_PUBLISHABLE_KEY`
-- [ ] **5.3** Create `useAuth` hook abstraction (wraps Clerk's `useUser`, `useAuth`)
-- [ ] **5.4** Build `<AuthModal>` component — sign in / sign up using Clerk's `<SignIn>` / `<SignUp>` components, styled to match ZIK design
-- [ ] **5.5** Add auth state to a global context or Zustand store
-- [ ] **5.6** Create `ProtectedRoute` wrapper for pages requiring auth
+- [x] **5.1** Install `@clerk/clerk-react`
+- [x] **5.2** Wrap app in `<ClerkProvider>` with `VITE_CLERK_PUBLISHABLE_KEY`
+- [x] **5.3** Create `useAuth` hook abstraction (wraps Clerk's `useUser`, `useAuth`)
+- [x] **5.4** Build `<AuthModal>` component — sign in / sign up using Clerk's `<SignIn>` / `<SignUp>` components, styled to match ZIK design
+- [x] **5.5** Add auth state to a global context or Zustand store
+- [x] **5.6** Create `ProtectedRoute` wrapper for pages requiring auth
 
 ---
 
