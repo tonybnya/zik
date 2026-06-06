@@ -61,18 +61,18 @@
 
 ## Phase 4 — Backend: API Routes
 
-- [ ] **4.1** Create Flask app factory (`create_app()`) with CORS, env config
-- [ ] **4.2** `GET /api/songs/random` — returns one random `Song` as JSON
-- [ ] **4.3** `GET /api/songs/:id/similar` — returns songs sharing mood tags or genre with the given song (exclude self, limit 8)
-- [ ] **4.4** `POST /api/history` — logs a play event for authenticated user (requires Clerk JWT validation middleware)
-- [ ] **4.5** `POST /api/favorites` — toggles favorite for a song (auth required)
-- [ ] **4.6** `GET /api/favorites` — returns user's favorited songs (auth required)
-- [ ] **4.7** `GET /api/preferences` — returns user preference record (auth required)
-- [ ] **4.8** `PUT /api/preferences` — updates genres/moods preferences (auth required)
-- [ ] **4.9** `GET /api/recommendations` — Gemini-powered endpoint (auth required); see Phase 7
-- [ ] **4.10** Write Clerk JWT validation middleware (verify token via Clerk public key / JWKS)
-- [ ] **4.11** Add error handlers for 400, 401, 404, 500
-- [ ] **4.12** Test all endpoints with `curl` or Postman
+- [x] **4.1** Create Flask app factory (`create_app()`) with CORS, env config
+- [x] **4.2** `GET /api/songs/random` — returns one random `Song` as JSON
+- [x] **4.3** `GET /api/songs/:id/similar` — returns songs sharing mood tags or genre with the given song (exclude self, limit 8)
+- [x] **4.4** `POST /api/history` — logs a play event for authenticated user (stub auth; Clerk seam in place for Phase 14)
+- [x] **4.5** `POST /api/favorites` — toggles favorite for a song (auth required)
+- [x] **4.6** `GET /api/favorites` — returns user's favorited songs (auth required)
+- [x] **4.7** `GET /api/preferences` — returns user preference record (auth required)
+- [x] **4.8** `PUT /api/preferences` — updates genres/moods preferences (auth required)
+- [x] **4.9** `GET /api/recommendations` — Gemini-powered endpoint (auth required; stub returns favorites, real swap in Phase 10)
+- [x] **4.10** Write auth middleware (stub for dev via `X-Stub-User-Id`/`X-Stub-User-Email`; Clerk JWT seam wired for Phase 14)
+- [x] **4.11** Add error handlers for 400, 401, 404, 500 (centralized in `app/errors.py`)
+- [x] **4.12** Test all endpoints with `curl` or Postman
 
 ---
 
@@ -155,7 +155,7 @@
 
 ## Phase 10 — AI Integration (Gemini)
 
-- [ ] **10.1** Install Google Generative AI SDK in backend (`pip install google-generativeai`)
+- [ ] **10.1** Install Google Generative AI SDK in backend (`pip install google-genai`)
 - [ ] **10.2** Create `GeminiService` class in `backend/app/services/gemini.py`
 - [ ] **10.3** Build prompt template: sends user's play history (last 10 songs) + preferences → asks Gemini to suggest 5 songs by title/artist/genre/mood
 - [ ] **10.4** Parse Gemini response and cross-reference with seed DB — return matching songs or format new suggestions

@@ -7,14 +7,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.models import Song
-from app.seed import REQUIRED_FIELDS, load_seed_data, seed_database
+from app.seed import REQUIRED_FIELDS, SongEntry, load_seed_data, seed_database
 
 
 # -----------------------------
@@ -151,7 +151,7 @@ def test_seed_database_preserves_all_fields(session, seed_file: Path) -> None:
 
 def test_seed_database_handles_null_bpm(session, valid_song: dict[str, Any]) -> None:
     valid_song["bpm"] = None
-    inserted = seed_database(session, [valid_song])
+    inserted = seed_database(session, [cast(SongEntry, valid_song)])
     session.commit()
 
     assert inserted == 1
