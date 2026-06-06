@@ -117,14 +117,14 @@
 
 ## Phase 7 — Frontend: Song Bubble System
 
-- [ ] **7.1** Build `<SongBubble>` component — displays song title, artist, genre chip, mood tag
-- [ ] **7.2** Implement bubble spawn animation: bubbles scale in from center of cassette and float outward using Framer Motion `motion.div` with `initial`, `animate`, `exit`
-- [ ] **7.3** Assign random orbit positions around the cassette (polar coordinates → CSS `transform`)
-- [ ] **7.4** Add bubble hover state: glow ring, slight scale-up pulse
-- [ ] **7.5** Add `onClick` handler: clicking a bubble replaces the current song with that bubble's song and re-fetches similar songs
-- [ ] **7.6** Add "AI pick" visual variant for Gemini-suggested bubbles (distinct color or badge)
-- [ ] **7.7** Handle bubble overflow gracefully (max 8 bubbles visible; animate out old ones when new ones come in)
-- [ ] **7.8** Add `<AnimatePresence>` to handle exit animations when bubbles disappear
+- [x] **7.1** Build `<SongBubble>` component — displays song title, artist, genre chip, mood tag
+- [x] **7.2** Implement bubble spawn animation: bubbles scale in from center of cassette and float outward using Framer Motion `motion.div` with `initial`, `animate`, `exit`
+- [x] **7.3** Assign random orbit positions around the cassette (polar coordinates → CSS `transform`)
+- [x] **7.4** Add bubble hover state: glow ring, slight scale-up pulse
+- [x] **7.5** Add `onClick` handler: clicking a bubble replaces the current song with that bubble's song and re-fetches similar songs
+- [x] **7.6** Add "AI pick" visual variant for Gemini-suggested bubbles (distinct color or badge)
+- [x] **7.7** Handle bubble overflow gracefully (max 8 bubbles visible; animate out old ones when new ones come in)
+- [x] **7.8** Add `<AnimatePresence>` to handle exit animations when bubbles disappear
 
 ---
 
