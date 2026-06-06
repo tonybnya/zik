@@ -3,7 +3,8 @@ import { useReducedMotion } from "motion/react";
 
 import type { Song } from "../../types/song";
 import { SongBubble } from "./SongBubble";
-import { computeOffset } from "./layout";
+import { computeAiOffset, computeOffset } from "./layout";
+import type { BubbleOffset } from "./layout";
 
 interface BubbleFieldProps {
   /** Similar / AI-suggested songs to orbit around the cassette. */
@@ -12,6 +13,10 @@ interface BubbleFieldProps {
   /** Cap on simultaneously visible bubbles (Task 7.7). */
   maxVisible?: number;
   className?: string;
+  /** Layout ring to use. "inner" = similar-songs orbit, "outer" = AI picks. */
+  ring?: "inner" | "outer";
+  /** Override the offset function (advanced). Defaults to the chosen `ring`. */
+  computeOffset?: (id: number | string, index: number, count: number) => BubbleOffset;
 }
 
 /**
@@ -28,21 +33,24 @@ export function BubbleField({
   onSelect,
   maxVisible = 8,
   className,
+  ring = "inner",
+  computeOffset: override,
 }: BubbleFieldProps) {
   const reduced = useReducedMotion() ?? false;
   const visible = songs.slice(0, maxVisible);
+  const offsetFor = override ?? (ring === "outer" ? computeAiOffset : computeOffset);
 
   return (
     <div
       className={`pointer-events-none absolute inset-0 grid place-items-center ${className ?? ""}`}
-      aria-label="Similar songs"
+      aria-label={ring === "outer" ? "AI suggestions" : "Similar songs"}
     >
       <AnimatePresence>
         {visible.map((song, i) => (
           <SongBubble
             key={song.id}
             song={song}
-            offset={computeOffset(song.id, i, visible.length)}
+            offset={offsetFor(song.id, i, visible.length)}
             onSelect={onSelect}
             reduced={reduced}
           />

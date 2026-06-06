@@ -5,7 +5,7 @@
  * toggles) end-to-end against a mocked API.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor, within, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
@@ -38,6 +38,7 @@ vi.mock("../lib/api", () => ({
   fetchRandomSong: vi.fn(),
   fetchSimilarSongs: vi.fn(),
   fetchFavorites: vi.fn(),
+  fetchRecommendations: vi.fn(),
   toggleFavorite: vi.fn(),
   logPlay: vi.fn(),
   ApiError: class extends Error {
@@ -68,6 +69,10 @@ const SIM: Song[] = [
   { ...SONG, id: 8, title: "Quiet Library" },
   { ...SONG, id: 9, title: "Midnight Coffee" },
 ];
+const AI_PICKS: Song[] = [
+  { ...SONG, id: 21, title: "Starlight Drift", isAiPick: true },
+  { ...SONG, id: 22, title: "Neon Window", isAiPick: true },
+];
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -76,6 +81,11 @@ beforeEach(() => {
   vi.mocked(api.fetchRandomSong).mockResolvedValue(SONG);
   vi.mocked(api.fetchSimilarSongs).mockResolvedValue(SIM);
   vi.mocked(api.fetchFavorites).mockResolvedValue([]);
+  vi.mocked(api.fetchRecommendations).mockResolvedValue({
+    songs: AI_PICKS,
+    ai_powered: true,
+    source: "gemini",
+  });
   vi.mocked(api.toggleFavorite).mockResolvedValue(true);
 });
 
@@ -168,5 +178,37 @@ describe("LandingPage", () => {
     await waitFor(() => expect(api.fetchRandomSong).toHaveBeenCalledOnce());
     // Silence unused-var lint for `act`.
     expect(act).toBeDefined();
+  });
+
+  it("surfaces AI suggestions as an outer ring after 3 plays", async () => {
+    auth.isSignedIn = true;
+    getToken.mockImplementation(async () => "tok");
+    const user = userEvent.setup();
+    renderLanding();
+
+    // 3 plays: 1 cassette play + 2 bubble selections
+    await user.click(screen.getByRole("button", { name: /^play$/i }));
+    await waitFor(() => expect(api.fetchRandomSong).toHaveBeenCalledTimes(1));
+    await user.click(
+      screen.getByRole("button", { name: /play quiet library/i }),
+    );
+    await waitFor(() => expect(api.fetchSimilarSongs).toHaveBeenLastCalledWith(8));
+    await user.click(
+      screen.getByRole("button", { name: /play midnight coffee/i }),
+    );
+    await waitFor(() => expect(api.fetchSimilarSongs).toHaveBeenLastCalledWith(9));
+
+    // AI suggestions arrive on the outer ring, in a separate aria-label group.
+    await waitFor(() =>
+      expect(api.fetchRecommendations).toHaveBeenCalledWith("tok"),
+    );
+    const aiField = await screen.findByLabelText("AI suggestions");
+    expect(aiField).toBeInTheDocument();
+    expect(
+      within(aiField).getByRole("button", { name: /play starlight drift/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(aiField).getByRole("button", { name: /play neon window/i }),
+    ).toBeInTheDocument();
   });
 });

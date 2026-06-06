@@ -155,14 +155,14 @@
 
 ## Phase 10 — AI Integration (Gemini)
 
-- [ ] **10.1** Install Google Generative AI SDK in backend (`pip install google-genai`)
-- [ ] **10.2** Create `GeminiService` class in `backend/app/services/gemini.py`
-- [ ] **10.3** Build prompt template: sends user's play history (last 10 songs) + preferences → asks Gemini to suggest 5 songs by title/artist/genre/mood
-- [ ] **10.4** Parse Gemini response and cross-reference with seed DB — return matching songs or format new suggestions
-- [ ] **10.5** Wire `GET /api/recommendations` route to `GeminiService`
-- [ ] **10.6** Trigger recommendation fetch on frontend after user plays 3+ songs (track count in local state)
-- [ ] **10.7** Surface Gemini suggestions as "AI pick" bubbles (see 7.6)
-- [ ] **10.8** Add graceful fallback if Gemini API fails (return similar songs from DB instead)
+- [x] **10.1** Install Google Generative AI SDK in backend (`uv add google-genai`)
+- [x] **10.2** Create `GeminiService` class in `backend/app/services/gemini.py`
+- [x] **10.3** Build prompt template: sends user's play history (last 10 songs) + preferences → asks Gemini to suggest 5 songs by title/artist/genre/mood
+- [x] **10.4** Parse Gemini response and cross-reference with seed DB — return matching songs or format new suggestions
+- [x] **10.5** Wire `GET /api/recommendations` route to `GeminiService`
+- [x] **10.6** Trigger recommendation fetch on frontend after user plays 3+ songs (track count in local state)
+- [x] **10.7** Surface Gemini suggestions as "AI pick" bubbles (see 7.6)
+- [x] **10.8** Add graceful fallback if Gemini API fails (return similar songs from DB instead)
 
 ---
 

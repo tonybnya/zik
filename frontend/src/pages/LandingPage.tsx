@@ -7,14 +7,15 @@ import { NowPlaying } from "../components/NowPlaying";
 import { usePlayer } from "../hooks/usePlayer";
 
 /**
- * The main app page (Phase 8): the cassette hero with orbiting song bubbles,
- * a top app bar, and a Now Playing footer. Wires the play button to a random
- * song and bubble selection to similar songs via usePlayer.
+ * The main app page (Phase 8 + 10): the cassette hero with orbiting song
+ * bubbles (similar on the inner ring, AI suggestions on the outer ring after
+ * 3+ plays), a top app bar, and a Now Playing footer.
  */
 export function LandingPage() {
   const {
     song,
     similar,
+    aiSuggestions,
     isPlaying,
     isLoading,
     error,
@@ -55,6 +56,14 @@ export function LandingPage() {
             isLoading={isLoading}
           />
           {song && <BubbleField songs={similar} onSelect={selectSong} />}
+          {song && aiSuggestions.length > 0 && (
+            <BubbleField
+              songs={aiSuggestions}
+              onSelect={selectSong}
+              maxVisible={5}
+              ring="outer"
+            />
+          )}
         </div>
 
         {error && (

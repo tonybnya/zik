@@ -1,23 +1,29 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "../auth";
 import {
   fetchRandomSong,
   fetchSimilarSongs,
   fetchFavorites,
+  fetchRecommendations,
   toggleFavorite as apiToggleFavorite,
   logPlay,
   ApiError,
 } from "../lib/api";
 import type { Song } from "../types/song";
 
+/** Number of plays before AI suggestions become available (Task 10.6). */
+export const AI_TRIGGER_PLAYS = 3;
+
 export interface PlayerState {
   song: Song | null;
   similar: Song[];
+  aiSuggestions: Song[];
   isPlaying: boolean;
   isLoading: boolean;
   error: string | null;
   favoriteIds: Set<number>;
+  playCount: number;
   /** Fetch a random song, play it, and load similar songs. */
   playRandom: () => Promise<void>;
   /** Toggle play/pause; on the very first play, fetches a random song. */
@@ -29,14 +35,15 @@ export interface PlayerState {
 }
 
 /**
- * Owns the landing page's playback state and API wiring (Tasks 8.5, 8.6, 8.8).
- * Presentational components receive these values and callbacks.
+ * Owns the landing page's playback state and API wiring (Tasks 8.5, 8.6, 8.8,
+ * 10.6). Presentational components receive these values and callbacks.
  */
 export function usePlayer(): PlayerState {
   const { isSignedIn, getToken, openSignIn } = useAuth();
 
   const [song, setSong] = useState<Song | null>(null);
   const [similar, setSimilar] = useState<Song[]>([]);
+  const [aiSuggestions, setAiSuggestions] = useState<Song[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +52,7 @@ export function usePlayer(): PlayerState {
   const [signedInFavoriteIds, setSignedInFavoriteIds] = useState<Set<number>>(
     new Set(),
   );
+  const [playCount, setPlayCount] = useState(0);
 
   // Keep favorites in sync with auth state.
   useEffect(() => {
@@ -81,6 +89,41 @@ export function usePlayer(): PlayerState {
     }
   }, []);
 
+  // Trigger the AI-suggestions fetch once the user has played enough songs.
+  // useRef guards against a double-fetch under StrictMode.
+  const aiFetched = useRef(false);
+  useEffect(() => {
+    if (aiFetched.current) return;
+    if (!isSignedIn) return;
+    if (playCount < AI_TRIGGER_PLAYS) return;
+    aiFetched.current = true;
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getToken();
+        const resp = await fetchRecommendations(token);
+        if (cancelled) return;
+        const mapped: Song[] = resp.songs.map((s) => ({
+          id: s.id,
+          title: s.title,
+          artist: s.artist,
+          genre: s.genre,
+          moods: s.moods ?? [],
+          bpm: s.bpm,
+          externalUrl: s.external_url,
+          coverUrl: s.cover_url,
+          isAiPick: true,
+        }));
+        setAiSuggestions(mapped);
+      } catch {
+        // Non-fatal: AI suggestions just stay empty.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [playCount, isSignedIn, getToken]);
+
   const playRandom = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -88,6 +131,7 @@ export function usePlayer(): PlayerState {
       const next = await fetchRandomSong();
       setSong(next);
       setIsPlaying(true);
+      setPlayCount((c) => c + 1);
       await loadSimilar(next.id);
       const token = isSignedIn ? await getToken() : null;
       void logPlay(Number(next.id), token);
@@ -114,6 +158,7 @@ export function usePlayer(): PlayerState {
       setSong(next);
       setIsPlaying(true);
       setError(null);
+      setPlayCount((c) => c + 1);
       await loadSimilar(next.id);
       const token = isSignedIn ? await getToken() : null;
       void logPlay(Number(next.id), token);
@@ -160,10 +205,12 @@ export function usePlayer(): PlayerState {
   return {
     song,
     similar,
+    aiSuggestions,
     isPlaying,
     isLoading,
     error,
     favoriteIds,
+    playCount,
     playRandom,
     togglePlay,
     selectSong,

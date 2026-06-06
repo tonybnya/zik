@@ -45,3 +45,30 @@ export function computeOffset(
     dy: Math.sin(angle) * radius,
   };
 }
+
+/** Outer ring radius for AI suggestions (Task 10.7). */
+const AI_BASE_RADIUS = 52; // vmin
+const AI_RADIUS_JITTER = 6; // vmin
+
+/**
+ * Like `computeOffset` but on the outer ring. Sits ~20vmin further out so the
+ * AI picks read as a separate, more deliberate orbit.
+ */
+export function computeAiOffset(
+  id: number | string,
+  index: number,
+  count: number,
+): BubbleOffset {
+  const key = String(id);
+  const baseAngle = (index / Math.max(count, 1)) * Math.PI * 2 - Math.PI / 2;
+  const wobble =
+    (seededUnit(`${key}:ai`) - 0.5) *
+    ((Math.PI * 2) / Math.max(count, 1)) * 0.7;
+  const angle = baseAngle + wobble;
+  const radius = AI_BASE_RADIUS + seededUnit(`${key}:ai:r`) * AI_RADIUS_JITTER;
+
+  return {
+    dx: Math.cos(angle) * radius,
+    dy: Math.sin(angle) * radius,
+  };
+}
