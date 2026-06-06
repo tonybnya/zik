@@ -13,18 +13,18 @@
 - [x] **0.5** Set up `backend/` with `uv` — create `pyproject.toml`, install Flask, SQLAlchemy, Flask-CORS, python-dotenv
 - [x] **0.6** Configure `ruff` and `ty` for linting and type checking in backend
 - [x] **0.7** Create root `.env.example` and `.gitignore`
-- [ ] **0.8** Initialize Git repository, make initial commit
+- [x] **0.8** Initialize Git repository, make initial commit
 
 ---
 
 ## Phase 1 — Design System & Assets
 
-- [ ] **1.1** Read and internalize `DESIGN.md` — extract color tokens, font choices, spacing scale
-- [ ] **1.2** Configure Tailwind v4 theme with ZIK design tokens (colors, fonts, shadows, border radii)
+- [x] **1.1** Read and internalize `DESIGN.md` — extract color tokens, font choices, spacing scale
+- [x] **1.2** Configure Tailwind v4 theme with ZIK design tokens (colors, fonts, shadows, border radii)
 - [x] **1.3** Place `cassette.png`, `favicon.png`, `logo.png` in `frontend/public/`
 - [x] **1.4** Set `favicon.png` as the browser favicon in `index.html`
-- [ ] **1.5** Create global CSS baseline (resets, custom scrollbar, background texture if needed)
-- [ ] **1.6** Define reusable Tailwind component classes (`.btn-primary`, `.glass-card`, etc.)
+- [x] **1.5** Create global CSS baseline (resets, custom scrollbar, background texture if needed)
+- [x] **1.6** Define reusable Tailwind component classes (`.btn-primary`, `.glass-card`, etc.)
 
 ---
 

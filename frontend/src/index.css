@@ -1,1 +1,313 @@
 @import "tailwindcss";
+
+/* ============================================================================
+   ZIK — Design tokens (Tailwind v4 CSS-first theme)
+   Source of truth: /DESIGN.md. Token comments map each value back to it.
+   ========================================================================== */
+@theme {
+  /* --- Palette -------------------------------------------------------------
+     Warm cream + amber. `accent` is the orange action color (DESIGN.secondary);
+     `accent-muted` is the tan used for soft emphasis (DESIGN.primary/surface). */
+  --color-background: #fdf8ee; /* page background */
+  --color-surface: #ead9bd; /* raised chrome / cassette body */
+  --color-card: #f1e4ca; /* card fill (DESIGN.tertiary) */
+  --color-neutral: #ffffff; /* pure white for highlights */
+
+  --color-accent: #ef8b3c; /* primary action + emphasis */
+  --color-accent-muted: #ead9bd; /* soft emphasis / inactive accent */
+
+  --color-ink: #704a2b; /* strong text + borders (DESIGN.text-secondary) */
+  --color-ink-soft: #b08560; /* muted/secondary text (DESIGN.text-primary) */
+  --color-line: #704a2b; /* default hairline border */
+  --color-line-warm: #ef8b3c; /* warm/active border */
+
+  /* --- Type ----------------------------------------------------------------
+     JetBrains Mono across display, body, and labels (DESIGN.typography). */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-display-lg: 60px;
+  --text-display-lg--line-height: 60px;
+  --text-display-lg--font-weight: 100;
+  --text-display-lg--letter-spacing: -0.025em;
+
+  --text-body-md: 12px;
+  --text-body-md--line-height: 16px;
+  --text-body-md--font-weight: 300;
+  --text-body-md--letter-spacing: 0.25em;
+
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--font-weight: 400;
+  --text-label-md--letter-spacing: 1.8px;
+
+  /* --- Radii (DESIGN.shapes: 6/8/12/25/26/full) --------------------------- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 25px;
+  --radius-2xl: 26px;
+
+  /* --- Spacing additions (4px base rhythm) -------------------------------- */
+  --spacing-section: 24px;
+  --spacing-card: 10px;
+
+  /* --- Elevation (DESIGN.elevation recipes) ------------------------------- */
+  --shadow-elevated:
+    rgba(176, 133, 96, 0.25) 0px 2px 4px 0px,
+    rgba(255, 255, 255, 0.9) 0px 1px 0px 0px inset,
+    rgba(176, 133, 96, 0.15) 0px -1px 2px 0px inset;
+  --shadow-glow: rgba(239, 139, 60, 0.6) 0px 0px 6px 0px;
+  --shadow-card:
+    rgba(176, 133, 96, 0.4) 0px 4px 12px 0px inset,
+    rgba(176, 133, 96, 0.5) 0px 0px 0px 1px inset,
+    rgba(255, 255, 255, 0.8) 0px 1px 1px 0px;
+  --shadow-hairline:
+    rgba(176, 133, 96, 0.6) 0px 0px 2px 0px inset,
+    rgba(255, 255, 255, 0.7) 0px 1px 0px 0px;
+}
+
+/* ============================================================================
+   Global baseline (1.5) — resets, typography defaults, background, scrollbar
+   ========================================================================== */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-mono);
+    font-weight: 300;
+    color: var(--color-ink);
+    background-color: var(--color-background);
+    /* Warm wash + faint amber dot-matrix nod to the DESIGN.md WebGL field.
+       The real Three.js field lands later; this is the static baseline. */
+    background-image:
+      radial-gradient(
+        120% 120% at 50% 0%,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(253, 248, 238, 0) 55%
+      ),
+      radial-gradient(
+        100% 100% at 50% 100%,
+        rgba(239, 139, 60, 0.06) 0%,
+        rgba(253, 248, 238, 0) 60%
+      ),
+      radial-gradient(rgba(176, 133, 96, 0.12) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 22px 22px;
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 100;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: rgba(239, 139, 60, 0.25);
+    color: var(--color-ink);
+  }
+
+  /* Custom scrollbar — amber thumb on cream track */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-soft) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-ink-soft);
+    border: 3px solid var(--color-background);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-ink);
+  }
+
+  /* Respect reduced-motion globally (DESIGN.motion: moderate, reduced fallback) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ============================================================================
+   Reusable component classes (1.6)
+   ========================================================================== */
+@layer components {
+  /* Uppercase tracked label — the DESIGN.label-md voice */
+  .label-caps {
+    font-size: var(--text-label-md);
+    line-height: var(--text-label-md--line-height);
+    font-weight: 400;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+
+  /* Primary action button — orange, glows on hover */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-accent);
+    color: var(--color-neutral);
+    font-size: var(--text-label-md);
+    font-weight: 500;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-elevated);
+    transition:
+      transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 150ms ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow), var(--shadow-elevated);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-elevated);
+  }
+
+  /* Secondary / ghost button — hairline on surface */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-line);
+    font-size: var(--text-label-md);
+    font-weight: 400;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    transition:
+      transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  .btn-ghost:hover {
+    background-color: rgba(112, 74, 43, 0.06);
+    border-color: var(--color-line-warm);
+    transform: translateY(-1px);
+  }
+
+  /* Card surface — the DESIGN card recipe (tertiary fill + inset shadow) */
+  .glass-card {
+    background-color: var(--color-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Gradient-border shell — wrap any surface for the premium hairline edge.
+     Place the real content as a direct child; it inherits the inset radius. */
+  .surface-shell {
+    position: relative;
+    padding: 1px;
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(239, 139, 60, 0.25) 50%,
+      rgba(176, 133, 96, 0.35) 100%
+    );
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .surface-shell > * {
+    border-radius: calc(var(--radius-2xl) - 1px);
+  }
+
+  /* Mood / genre chip */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid rgba(112, 74, 43, 0.2);
+    font-size: var(--text-label-md);
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+
+  .chip-accent {
+    background-color: rgba(239, 139, 60, 0.14);
+    border-color: var(--color-line-warm);
+    color: var(--color-ink);
+  }
+}
