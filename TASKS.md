@@ -44,7 +44,7 @@
 
 ## Phase 3 — Backend: Song Seed Data
 
-- [ ] **3.1** Curate song list (150–300 entries) across categories:
+- [x] **3.1** Curate song list (150–300 entries) across categories:
   - Lo-fi hip hop (50 songs)
   - Cinematic / Orchestral (40 songs)
   - Ambient / Drone (30 songs)
@@ -52,10 +52,10 @@
   - Jazz instrumental (30 songs)
   - Classical focus (30 songs)
   - Synthwave instrumental (30 songs)
-- [ ] **3.2** Structure each entry as JSON: `{ title, artist, genre, moods[], bpm, external_url, cover_url }`
-- [ ] **3.3** Save seed data to `backend/app/seeds/songs.json`
-- [ ] **3.4** Write `seed.py` script — reads JSON and bulk-inserts into `Song` table
-- [ ] **3.5** Run seed and verify data in SQLite with a quick query
+- [x] **3.2** Structure each entry as JSON: `{ title, artist, genre, moods[], bpm, external_url, cover_url }`
+- [x] **3.3** Save seed data to `backend/app/seeds/songs.json`
+- [x] **3.4** Write `seed.py` script — reads JSON and bulk-inserts into `Song` table
+- [x] **3.5** Run seed and verify data in SQLite with a quick query
 
 ---
 
