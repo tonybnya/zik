@@ -178,10 +178,10 @@
 
 ## Phase 12 — Routing & App Shell
 
-- [ ] **12.1** Install React Router v6
-- [ ] **12.2** Set up routes: `/` → `LandingPage`, `*` → `NotFoundPage`
-- [ ] **12.3** Add `<AnimatePresence>` page transitions in the router
-- [ ] **12.4** Add `<Suspense>` + loading skeleton for async page chunks
+- [x] **12.1** Install React Router v6
+- [x] **12.2** Set up routes: `/` → `LandingPage`, `*` → `NotFoundPage`
+- [x] **12.3** Add `<AnimatePresence>` page transitions in the router
+- [x] **12.4** Add `<Suspense>` + loading skeleton for async page chunks
 
 ---
 
