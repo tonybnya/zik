@@ -130,16 +130,16 @@
 
 ## Phase 8 — Frontend: Landing Page
 
-- [ ] **8.1** Create `LandingPage.tsx` — full-screen layout
-- [ ] **8.2** Place `<CassettePlayer>` as the hero — centered, taking up most of the viewport
-- [ ] **8.3** Add ambient background (gradient, noise texture, or subtle particle effect consistent with `DESIGN.md`)
-- [ ] **8.4** Add header with `logo.png`, nav links (Favorites, Sign In), consistent with design system
-- [ ] **8.5** Wire Play button to `GET /api/songs/random` — fetch and display song, trigger cassette animation
-- [ ] **8.6** Wire song selection to `GET /api/songs/:id/similar` — populate bubbles around cassette
-- [ ] **8.7** Add `<NowPlaying>` footer bar — song title, artist, external link to listen, favorite button
-- [ ] **8.8** Implement Favorite button — calls `POST /api/favorites`, requires auth (prompt sign-in if not)
-- [ ] **8.9** Add page entrance animation (Framer Motion `motion.div` fade-in on mount)
-- [ ] **8.10** Polish: ensure smooth layout at all breakpoints (mobile, tablet, desktop)
+- [x] **8.1** Create `LandingPage.tsx` — full-screen layout
+- [x] **8.2** Place `<CassettePlayer>` as the hero — centered, taking up most of the viewport
+- [x] **8.3** Add ambient background (gradient, noise texture, or subtle particle effect consistent with `DESIGN.md`)
+- [x] **8.4** Add header with `logo.png`, nav links (Favorites, Sign In), consistent with design system
+- [x] **8.5** Wire Play button to `GET /api/songs/random` — fetch and display song, trigger cassette animation
+- [x] **8.6** Wire song selection to `GET /api/songs/:id/similar` — populate bubbles around cassette
+- [x] **8.7** Add `<NowPlaying>` footer bar — song title, artist, external link to listen, favorite button
+- [x] **8.8** Implement Favorite button — calls `POST /api/favorites`, requires auth (prompt sign-in if not)
+- [x] **8.9** Add page entrance animation (Framer Motion `motion.div` fade-in on mount)
+- [x] **8.10** Polish: ensure smooth layout at all breakpoints (mobile, tablet, desktop)
 
 ---
 
