@@ -95,3 +95,38 @@ def test_similar_empty_when_target_has_no_genre_or_moods(
 
     resp = client.get(f"/api/songs/{target}/similar")
     assert resp.get_json()["songs"] == []
+
+
+def test_similar_boosts_user_preferred_genre(
+    client: FlaskClient, make_song, stub_headers
+) -> None:
+    """When the user has preferred_genres set, candidate songs matching that
+    genre should rank above candidates that only match the target song's mood."""
+    target = make_song(title="Target", genre="ambient", moods=["calm"])
+    # "Preferred" matches user prefs but not target's genre.
+    make_song(title="Preferred Match", genre="lofi", moods=["bright"])
+    # "Mood Match" matches target's mood but not user prefs.
+    make_song(title="Mood Match", genre="ambient", moods=["bright"])
+
+    # Set user prefs to lofi.
+    client.put("/api/preferences", json={"preferred_genres": ["lofi"]}, headers=stub_headers)
+
+    resp = client.get(f"/api/songs/{target}/similar", headers=stub_headers)
+    titles = [s["title"] for s in resp.get_json()["songs"]]
+    assert "Preferred Match" in titles
+    assert "Mood Match" in titles
+    # Preferred Match should rank above Mood Match.
+    assert titles.index("Preferred Match") < titles.index("Mood Match")
+
+
+def test_similar_works_without_auth_for_preferences(
+    client: FlaskClient, make_song
+) -> None:
+    """Unauthenticated callers still get the base ranking; preferences are
+    an optional bonus, not a filter."""
+    target = make_song(title="Target", genre="ambient", moods=["calm"])
+    make_song(title="Match", genre="ambient", moods=["bright"])
+
+    resp = client.get(f"/api/songs/{target}/similar")
+    titles = [s["title"] for s in resp.get_json()["songs"]]
+    assert "Match" in titles

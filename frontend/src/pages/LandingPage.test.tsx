@@ -39,6 +39,8 @@ vi.mock("../lib/api", () => ({
   fetchSimilarSongs: vi.fn(),
   fetchFavorites: vi.fn(),
   fetchRecommendations: vi.fn(),
+  fetchPreferences: vi.fn(),
+  updatePreferences: vi.fn(),
   toggleFavorite: vi.fn(),
   logPlay: vi.fn(),
   ApiError: class extends Error {
@@ -85,6 +87,10 @@ beforeEach(() => {
     songs: AI_PICKS,
     ai_powered: true,
     source: "gemini",
+  });
+  vi.mocked(api.fetchPreferences).mockResolvedValue({
+    preferredGenres: [],
+    preferredMoods: [],
   });
   vi.mocked(api.toggleFavorite).mockResolvedValue(true);
 });
@@ -210,5 +216,68 @@ describe("LandingPage", () => {
     expect(
       within(aiField).getByRole("button", { name: /play neon window/i }),
     ).toBeInTheDocument();
+  });
+
+  it("shows the preference prompt after the 2nd play when prefs are empty", async () => {
+    auth.isSignedIn = true;
+    getToken.mockImplementation(async () => "tok");
+    const user = userEvent.setup();
+    renderLanding();
+
+    // 1st play — no prompt yet.
+    await user.click(screen.getByRole("button", { name: /^play$/i }));
+    await waitFor(() => expect(api.fetchRandomSong).toHaveBeenCalledTimes(1));
+    expect(screen.queryByTestId("preference-prompt")).not.toBeInTheDocument();
+
+    // 2nd play — prompt appears.
+    await user.click(
+      screen.getByRole("button", { name: /play quiet library/i }),
+    );
+    expect(
+      await screen.findByTestId("preference-prompt"),
+    ).toBeInTheDocument();
+  });
+
+  it("does not show the preference prompt when preferences are already set", async () => {
+    auth.isSignedIn = true;
+    getToken.mockImplementation(async () => "tok");
+    vi.mocked(api.fetchPreferences).mockResolvedValue({
+      preferredGenres: ["lofi"],
+      preferredMoods: [],
+    });
+    const user = userEvent.setup();
+    renderLanding();
+
+    await user.click(screen.getByRole("button", { name: /^play$/i }));
+    await waitFor(() => expect(api.fetchRandomSong).toHaveBeenCalledTimes(1));
+    await user.click(
+      screen.getByRole("button", { name: /play quiet library/i }),
+    );
+    // Wait for the playCount to settle.
+    await waitFor(() =>
+      expect(api.fetchSimilarSongs).toHaveBeenLastCalledWith(8),
+    );
+    expect(screen.queryByTestId("preference-prompt")).not.toBeInTheDocument();
+  });
+
+  it("hides the prompt when the dismiss button is clicked", async () => {
+    auth.isSignedIn = true;
+    getToken.mockImplementation(async () => "tok");
+    const user = userEvent.setup();
+    renderLanding();
+
+    await user.click(screen.getByRole("button", { name: /^play$/i }));
+    await user.click(
+      screen.getByRole("button", { name: /play quiet library/i }),
+    );
+    const prompt = await screen.findByTestId("preference-prompt");
+    expect(prompt).toBeInTheDocument();
+
+    await user.click(
+      within(prompt).getByRole("button", { name: /dismiss/i }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("preference-prompt")).not.toBeInTheDocument(),
+    );
   });
 });

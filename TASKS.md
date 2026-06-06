@@ -168,11 +168,11 @@
 
 ## Phase 11 — User Preferences & Favorites UI
 
-- [ ] **11.1** Build `<FavoritesDrawer>` or `<FavoritesPage>` — lists saved songs, each launchable
-- [ ] **11.2** Build `<PreferencesPanel>` — genre and mood multi-select checkboxes; saves to `PUT /api/preferences`
-- [ ] **11.3** Integrate preferences into Gemini prompt (Phase 10) and similar song query (Phase 4.3)
-- [ ] **11.4** Show preference prompt after user's 2nd play if no preferences set
-- [ ] **11.5** Persist favorites count badge in header nav
+- [x] **11.1** Build `<FavoritesDrawer>` or `<FavoritesPage>` — lists saved songs, each launchable
+- [x] **11.2** Build `<PreferencesPanel>` — genre and mood multi-select checkboxes; saves to `PUT /api/preferences`
+- [x] **11.3** Integrate preferences into Gemini prompt (Phase 10) and similar song query (Phase 4.3)
+- [x] **11.4** Show preference prompt after user's 2nd play if no preferences set
+- [x] **11.5** Persist favorites count badge in header nav
 
 ---
 

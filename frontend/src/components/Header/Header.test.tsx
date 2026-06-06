@@ -31,10 +31,11 @@ const renderWith = (value: AuthContextValue, props = {}) =>
   );
 
 describe("Header", () => {
-  it("shows the wordmark, Favorites, and a Sign in button when signed out", () => {
+  it("shows the wordmark, Favorites link, and a Sign in button when signed out", () => {
     renderWith(mockAuth({ isSignedIn: false }));
     expect(screen.getByText("ZIK")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /favorites/i })).toBeInTheDocument();
+    const fav = screen.getByRole("link", { name: /favorites/i });
+    expect(fav).toHaveAttribute("href", "/favorites");
     expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -55,5 +56,16 @@ describe("Header", () => {
     );
     expect(screen.getByText("Ada L")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^sign in$/i })).not.toBeInTheDocument();
+  });
+
+  it("hides the favorites count badge when count is zero", () => {
+    renderWith(mockAuth({ isSignedIn: true }), { favoritesCount: 0 });
+    expect(screen.queryByTestId("favorites-badge")).not.toBeInTheDocument();
+  });
+
+  it("renders the favorites count badge when count > 0", () => {
+    renderWith(mockAuth({ isSignedIn: true }), { favoritesCount: 7 });
+    const badge = screen.getByTestId("favorites-badge");
+    expect(badge).toHaveTextContent("7");
   });
 });

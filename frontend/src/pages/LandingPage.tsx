@@ -1,15 +1,23 @@
+import { useState } from "react";
 import { motion } from "motion/react";
 
 import { CassettePlayer } from "../components/CassettePlayer";
 import { BubbleField } from "../components/SongBubble";
 import { Header } from "../components/Header";
 import { NowPlaying } from "../components/NowPlaying";
+import { PreferencePrompt } from "../components/PreferencesPanel";
 import { usePlayer } from "../hooks/usePlayer";
+import { usePreferences } from "../hooks/usePreferences";
+import { useAuth } from "../auth";
+
+/** Number of plays before the preference prompt appears (Task 11.4). */
+const PROMPT_TRIGGER_PLAYS = 2;
 
 /**
- * The main app page (Phase 8 + 10): the cassette hero with orbiting song
+ * The main app page (Phase 8 + 10 + 11): the cassette hero with orbiting song
  * bubbles (similar on the inner ring, AI suggestions on the outer ring after
- * 3+ plays), a top app bar, and a Now Playing footer.
+ * 3+ plays), a top app bar, a Now Playing footer, and a one-time preference
+ * nudge that appears after the 2nd play.
  */
 export function LandingPage() {
   const {
@@ -20,10 +28,21 @@ export function LandingPage() {
     isLoading,
     error,
     favoriteIds,
+    playCount,
     togglePlay,
     selectSong,
     toggleFavorite,
   } = usePlayer();
+
+  const { isSignedIn } = useAuth();
+  const { preferences, hasPreferences, save } = usePreferences();
+  const [promptDismissed, setPromptDismissed] = useState(false);
+
+  const showPrompt =
+    isSignedIn &&
+    !hasPreferences &&
+    !promptDismissed &&
+    playCount >= PROMPT_TRIGGER_PLAYS;
 
   const isFavorite = song ? favoriteIds.has(Number(song.id)) : false;
 
@@ -40,7 +59,7 @@ export function LandingPage() {
         className="pointer-events-none absolute left-1/2 top-1/2 size-[80vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"
       />
 
-      <Header />
+      <Header favoritesCount={favoriteIds.size} />
 
       <main className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-24">
         <div className="mb-2 flex flex-col items-center gap-1 text-center">
@@ -74,6 +93,13 @@ export function LandingPage() {
             {error}
           </p>
         )}
+
+        <PreferencePrompt
+          enabled={showPrompt}
+          preferences={preferences}
+          onSave={save}
+          onDismiss={() => setPromptDismissed(true)}
+        />
       </main>
 
       <NowPlaying

@@ -5,15 +5,15 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../auth";
 
 interface HeaderProps {
-  /** Open the favorites view (Phase 11). */
-  onOpenFavorites?: () => void;
+  /** Number of saved favorites; drives the count badge (Task 11.5). */
+  favoritesCount?: number;
 }
 
 /**
- * Top app bar (Task 8.4): logo + wordmark, a Favorites link, and auth controls
- * consistent with the design system.
+ * Top app bar (Task 8.4 + 11.5): logo + wordmark, a Favorites link with an
+ * optional count badge, and auth controls consistent with the design system.
  */
-export function Header({ onOpenFavorites }: HeaderProps) {
+export function Header({ favoritesCount = 0 }: HeaderProps) {
   const { isSignedIn, user, signOut, openSignIn } = useAuth();
 
   return (
@@ -24,14 +24,26 @@ export function Header({ onOpenFavorites }: HeaderProps) {
       </Link>
 
       <nav className="flex items-center gap-2">
-        <button
-          type="button"
-          className="btn-ghost gap-1.5 px-3 py-2"
-          onClick={onOpenFavorites}
+        <Link
+          to="/favorites"
+          className="btn-ghost relative gap-1.5 px-3 py-2"
+          aria-label={
+            favoritesCount > 0
+              ? `Favorites, ${favoritesCount} saved`
+              : "Favorites"
+          }
         >
           <HugeiconsIcon icon={FavouriteIcon} size={16} strokeWidth={1.8} />
           <span className="hidden sm:inline">Favorites</span>
-        </button>
+          {favoritesCount > 0 && (
+            <span
+              data-testid="favorites-badge"
+              className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold leading-none text-neutral shadow-[var(--shadow-glow)]"
+            >
+              {favoritesCount > 99 ? "99+" : favoritesCount}
+            </span>
+          )}
+        </Link>
 
         {isSignedIn ? (
           <button
