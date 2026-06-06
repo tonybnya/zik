@@ -145,11 +145,11 @@
 
 ## Phase 9 — Frontend: 404 Not Found Page
 
-- [ ] **9.1** Create `NotFoundPage.tsx`
-- [ ] **9.2** Design a retro cassette-themed 404 — e.g., a broken/tangled tape metaphor, "Track Not Found", "The tape has snapped"
-- [ ] **9.3** Add a "Rewind Home" button that navigates back to `/`
-- [ ] **9.4** Add subtle Framer Motion animation (tape unspooling, rewind effect)
-- [ ] **9.5** Ensure consistent design language with the rest of the app
+- [x] **9.1** Create `NotFoundPage.tsx`
+- [x] **9.2** Design a retro cassette-themed 404 — broken/tangled tape metaphor, "Track Not Found", "The tape has snapped"
+- [x] **9.3** Add a "Rewind Home" button that navigates back to `/`
+- [x] **9.4** Add subtle Framer Motion animation (two tape halves drift apart on an easeInOut loop, reduced-motion safe)
+- [x] **9.5** Ensure consistent design language (uses `surface-shell` card, JetBrains Mono, amber accent, same ambient glow as landing)
 
 ---
 

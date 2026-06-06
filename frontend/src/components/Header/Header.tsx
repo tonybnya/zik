@@ -1,5 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { FavouriteIcon } from "@hugeicons/core-free-icons";
+import { Link } from "react-router-dom";
 
 import { useAuth } from "../../auth";
 
@@ -17,10 +18,10 @@ export function Header({ onOpenFavorites }: HeaderProps) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-4 py-3 sm:px-6">
-      <a href="/" className="flex items-center gap-2" aria-label="ZIK home">
+      <Link to="/" className="flex items-center gap-2" aria-label="ZIK home">
         <img src="/logo.png" alt="" className="size-8" />
         <span className="label-caps text-ink">ZIK</span>
-      </a>
+      </Link>
 
       <nav className="flex items-center gap-2">
         <button

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 
 import { Header } from "./Header";
 import { AuthContext } from "../../auth";
@@ -22,9 +23,11 @@ const mockAuth = (over: Partial<AuthContextValue>): AuthContextValue => ({
 
 const renderWith = (value: AuthContextValue, props = {}) =>
   render(
-    <AuthContext.Provider value={value}>
-      <Header {...props} />
-    </AuthContext.Provider>,
+    <MemoryRouter>
+      <AuthContext.Provider value={value}>
+        <Header {...props} />
+      </AuthContext.Provider>
+    </MemoryRouter>,
   );
 
 describe("Header", () => {

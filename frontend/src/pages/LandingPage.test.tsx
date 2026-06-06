@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 
 import { LandingPage } from "./LandingPage";
 import type { Song } from "../types/song";
@@ -79,8 +80,10 @@ beforeEach(() => {
 });
 
 describe("LandingPage", () => {
+  const renderLanding = () => render(<LandingPage />, { wrapper: MemoryRouter });
+
   it("renders the cassette hero and header", () => {
-    render(<LandingPage />);
+    renderLanding();
     // "ZIK" appears in both the header wordmark and the cassette label text.
     expect(screen.getAllByText("ZIK").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /play/i })).toBeInTheDocument();
@@ -90,7 +93,7 @@ describe("LandingPage", () => {
 
   it("presses play, fetches a random song, and shows similar bubbles", async () => {
     const user = userEvent.setup();
-    render(<LandingPage />);
+    renderLanding();
 
     await user.click(screen.getByRole("button", { name: /play/i }));
 
@@ -114,7 +117,7 @@ describe("LandingPage", () => {
 
   it("selecting a bubble swaps the song and refreshes similar", async () => {
     const user = userEvent.setup();
-    render(<LandingPage />);
+    renderLanding();
 
     await user.click(screen.getByRole("button", { name: /play/i }));
     await waitFor(() =>
@@ -131,7 +134,7 @@ describe("LandingPage", () => {
 
   it("favoriting a song while signed out opens the sign-in modal", async () => {
     const user = userEvent.setup();
-    render(<LandingPage />);
+    renderLanding();
 
     await user.click(screen.getByRole("button", { name: /play/i }));
     const fav = await screen.findByRole("button", { name: /add favorite/i });
@@ -147,7 +150,7 @@ describe("LandingPage", () => {
       new ApiError("Server is taking a break.", 500, "boom"),
     );
     const user = userEvent.setup();
-    render(<LandingPage />);
+    renderLanding();
 
     await user.click(screen.getByRole("button", { name: /play/i }));
     expect(
@@ -160,7 +163,7 @@ describe("LandingPage", () => {
     // motion preference. The cassette + bubble animations short-circuit on
     // reduced motion; we don't need to assert that here.
     const user = userEvent.setup();
-    render(<LandingPage />);
+    renderLanding();
     await user.click(screen.getByRole("button", { name: /play/i }));
     await waitFor(() => expect(api.fetchRandomSong).toHaveBeenCalledOnce());
     // Silence unused-var lint for `act`.
