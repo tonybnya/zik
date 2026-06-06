@@ -91,7 +91,7 @@
 
 > This is the core visual centerpiece. Take time here.
 
-- [ ] **6.1** Sketch component tree:
+- [x] **6.1** Sketch component tree:
   ```
   <CassettePlayer>
     <CassetteBody>
@@ -104,14 +104,14 @@
     <NowPlayingInfo />
   </CassettePlayer>
   ```
-- [ ] **6.2** Build `<CassetteBody>` — SVG or div-based cassette shell, referencing `cassette.png` for proportions and style
-- [ ] **6.3** Build `<TapeReel>` — circular SVG reel with spokes; Framer Motion `animate` rotation during playback
-- [ ] **6.4** Build `<TapeWindow>` — the window cut-out showing the "tape" (dark ribbon)
-- [ ] **6.5** Build `<CassetteLabel>` — shows current song title + artist, styled as a cassette label
-- [ ] **6.6** Build `<PlayButton>` — large center button; triggers song fetch on click; toggles play/pause state
-- [ ] **6.7** Animate tape ribbon moving between reels on play (Framer Motion path or CSS transform)
-- [ ] **6.8** Add idle state animation (subtle floating/breathing cassette when no song is playing)
-- [ ] **6.9** Make cassette fully responsive (scales from mobile to desktop)
+- [x] **6.2** Build `<CassetteBody>` — SVG or div-based cassette shell, referencing `cassette.png` for proportions and style
+- [x] **6.3** Build `<TapeReel>` — circular SVG reel with spokes; Framer Motion `animate` rotation during playback
+- [x] **6.4** Build `<TapeWindow>` — the window cut-out showing the "tape" (dark ribbon)
+- [x] **6.5** Build `<CassetteLabel>` — shows current song title + artist, styled as a cassette label
+- [x] **6.6** Build `<PlayButton>` — large center button; triggers song fetch on click; toggles play/pause state
+- [x] **6.7** Animate tape ribbon moving between reels on play (Framer Motion path or CSS transform)
+- [x] **6.8** Add idle state animation (subtle floating/breathing cassette when no song is playing)
+- [x] **6.9** Make cassette fully responsive (scales from mobile to desktop)
 
 ---
 

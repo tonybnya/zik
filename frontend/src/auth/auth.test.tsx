@@ -1,6 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+
+// Force auth-disabled mode regardless of any VITE_CLERK_PUBLISHABLE_KEY in the
+// environment, so these tests are deterministic on every machine.
+vi.mock("./../lib/clerk", () => ({
+  CLERK_PUBLISHABLE_KEY: "",
+  IS_CLERK_CONFIGURED: false,
+  ZIK_CLERK_APPEARANCE: {},
+}));
 
 import { AuthProvider } from "./AuthProvider";
 import { AuthContext } from "./AuthContext";
