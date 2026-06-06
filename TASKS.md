@@ -30,15 +30,15 @@
 
 ## Phase 2 — Backend: Database & Models
 
-- [ ] **2.1** Create SQLAlchemy models:
+- [x] **2.1** Create SQLAlchemy models:
   - `Song` — `id`, `title`, `artist`, `genre`, `moods` (JSON), `bpm`, `external_url`, `cover_url`
   - `User` — `id`, `clerk_id`, `email`, `created_at`
   - `PlayHistory` — `id`, `user_id`, `song_id`, `played_at`
   - `Favorite` — `id`, `user_id`, `song_id`, `saved_at`
   - `Preference` — `id`, `user_id`, `preferred_genres` (JSON), `preferred_moods` (JSON), `updated_at`
-- [ ] **2.2** Set up SQLAlchemy engine with env-based `DATABASE_URL` (SQLite locally, Supabase Postgres in prod)
-- [ ] **2.3** Write `db_init.py` — creates all tables on first run
-- [ ] **2.4** Write database migration strategy note (use Flask-Migrate or manual Alembic for prod)
+- [x] **2.2** Set up SQLAlchemy engine with env-based `DATABASE_URL` (SQLite locally, Supabase Postgres in prod)
+- [x] **2.3** Write `db_init.py` — creates all tables on first run
+- [x] **2.4** Write database migration strategy note (use Flask-Migrate or manual Alembic for prod)
 
 ---
 
