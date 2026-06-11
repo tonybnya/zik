@@ -14,6 +14,7 @@ const SONG: Song = {
   bpm: 72,
   externalUrl: "https://example.com/song",
   coverUrl: null,
+  audioUrl: null,
 };
 
 describe("NowPlaying", () => {
@@ -24,14 +25,12 @@ describe("NowPlaying", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("shows the track and an external listen link", () => {
+  it("shows the track title and artist", () => {
     render(
       <NowPlaying song={SONG} isFavorite={false} onToggleFavorite={() => {}} />,
     );
     expect(screen.getByText("Rainy Window")).toBeInTheDocument();
-    const link = screen.getByRole("link", { name: /listen/i });
-    expect(link).toHaveAttribute("href", "https://example.com/song");
-    expect(link).toHaveAttribute("target", "_blank");
+    expect(screen.getByText(/Tape Deck/)).toBeInTheDocument();
   });
 
   it("reflects favorite state and forwards toggles", async () => {

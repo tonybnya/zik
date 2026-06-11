@@ -55,6 +55,8 @@ class Config:
     }
 
     GEMINI_API_KEY: str | None = _env_optional("GEMINI_API_KEY")
+    AUDIO_DIR: Path = BACKEND_ROOT / "app" / "audio"
+
     CLERK_SECRET_KEY: str | None = _env_optional("CLERK_SECRET_KEY")
     CLERK_PUBLISHABLE_KEY: str | None = _env_optional("VITE_CLERK_PUBLISHABLE_KEY")
     CORS_ORIGINS: str = _env("CORS_ORIGINS", "http://localhost:5173")

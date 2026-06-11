@@ -40,12 +40,13 @@ class SongEntry(TypedDict, total=False):
     bpm: int | None
     external_url: str
     cover_url: str | None
+    audio_path: str | None
 
 
 REQUIRED_FIELDS: frozenset[str] = frozenset(
     {"title", "artist", "genre", "moods", "external_url"}
 )
-OPTIONAL_FIELDS: frozenset[str] = frozenset({"bpm", "cover_url"})
+OPTIONAL_FIELDS: frozenset[str] = frozenset({"bpm", "cover_url", "audio_path"})
 
 
 class SeedValidationError(ValueError):
@@ -73,9 +74,7 @@ def load_seed_data(path: Path) -> list[SongEntry]:
     validated: list[SongEntry] = []
     for index, raw_entry in enumerate(payload):
         if not isinstance(raw_entry, dict):
-            raise SeedValidationError(
-                f"Entry #{index} is not an object: {raw_entry!r}"
-            )
+            raise SeedValidationError(f"Entry #{index} is not an object: {raw_entry!r}")
         entry: dict[str, Any] = raw_entry
         missing = REQUIRED_FIELDS - entry.keys()
         if missing:
@@ -111,6 +110,13 @@ def load_seed_data(path: Path) -> list[SongEntry]:
                 f"or null, got {type(cover_url).__name__}"
             )
 
+        audio_path = entry.get("audio_path")
+        if audio_path is not None and not isinstance(audio_path, str):
+            raise SeedValidationError(
+                f"Entry #{index} ({entry['title']}) 'audio_path' must be string "
+                f"or null, got {type(audio_path).__name__}"
+            )
+
         validated.append(cast(SongEntry, entry))
 
     return validated
@@ -131,6 +137,7 @@ def seed_database(session: Session, songs: list[SongEntry]) -> int:
             bpm=s.get("bpm"),
             external_url=s["external_url"],
             cover_url=s.get("cover_url"),
+            audio_path=s.get("audio_path"),
         )
         for s in songs
     ]

@@ -82,25 +82,33 @@ def test_build_prompt_lists_recent_plays_newest_first() -> None:
 
 
 def test_build_prompt_handles_empty_history() -> None:
-    prompt = build_prompt(
-        preferred_genres=["lofi"], preferred_moods=[], history=[]
-    )
+    prompt = build_prompt(preferred_genres=["lofi"], preferred_moods=[], history=[])
     assert "No recent plays" in prompt or "none" in prompt.lower()
 
 
 def test_parse_suggestions_accepts_pure_json() -> None:
     raw = json.dumps(
         [
-            {"title": "Rainy Window", "artist": "Tape Deck",
-             "genre": "lofi", "moods": ["calm", "focus"]},
-            {"title": "Quiet Library", "artist": "Chillhop",
-             "genre": "lofi", "moods": ["focus"]},
+            {
+                "title": "Rainy Window",
+                "artist": "Tape Deck",
+                "genre": "lofi",
+                "moods": ["calm", "focus"],
+            },
+            {
+                "title": "Quiet Library",
+                "artist": "Chillhop",
+                "genre": "lofi",
+                "moods": ["focus"],
+            },
         ]
     )
     out = parse_suggestions(raw)
     assert len(out) == 2
     assert out[0] == Suggestion(
-        title="Rainy Window", artist="Tape Deck", genre="lofi",
+        title="Rainy Window",
+        artist="Tape Deck",
+        genre="lofi",
         moods=["calm", "focus"],
     )
 
@@ -148,10 +156,18 @@ async def test_recommend_returns_parsed_suggestions() -> None:
     client.aio.models.next_response = SimpleNamespace(
         text=json.dumps(
             [
-                {"title": "Rainy", "artist": "Tape",
-                 "genre": "lofi", "moods": ["calm"]},
-                {"title": "Quiet", "artist": "Chill",
-                 "genre": "lofi", "moods": ["focus"]},
+                {
+                    "title": "Rainy",
+                    "artist": "Tape",
+                    "genre": "lofi",
+                    "moods": ["calm"],
+                },
+                {
+                    "title": "Quiet",
+                    "artist": "Chill",
+                    "genre": "lofi",
+                    "moods": ["focus"],
+                },
             ]
         )
     )
@@ -172,9 +188,7 @@ async def test_recommend_uses_flash_model() -> None:
             [{"title": "A", "artist": "B", "genre": "lofi", "moods": ["calm"]}]
         )
     )
-    await service.recommend(
-        preferred_genres=[], preferred_moods=[], history=[]
-    )
+    await service.recommend(preferred_genres=[], preferred_moods=[], history=[])
     assert client.aio.models.last_call is not None
     assert "flash" in client.aio.models.last_call["model"].lower()
 
@@ -184,9 +198,7 @@ async def test_recommend_wraps_client_errors() -> None:
     client.aio.models.next_error = RuntimeError("network down")
 
     with pytest.raises(GeminiError):
-        await service.recommend(
-            preferred_genres=[], preferred_moods=[], history=[]
-        )
+        await service.recommend(preferred_genres=[], preferred_moods=[], history=[])
 
 
 async def test_recommend_wraps_empty_response() -> None:
@@ -194,6 +206,4 @@ async def test_recommend_wraps_empty_response() -> None:
     client.aio.models.next_response = SimpleNamespace(text=None)
 
     with pytest.raises(GeminiError):
-        await service.recommend(
-            preferred_genres=[], preferred_moods=[], history=[]
-        )
+        await service.recommend(preferred_genres=[], preferred_moods=[], history=[])

@@ -1,6 +1,7 @@
 """
 Script Name : songs.py
-Description : Public song routes — random pick + similar-by-mood/genre.
+Description : Public song routes — random pick, similar-by-mood/genre,
+              and inline audio serving.
               Auth is optional: signed-in users get a personalized boost
               from their preferences; anonymous callers get the base
               ranking.
@@ -8,10 +9,11 @@ Description : Public song routes — random pick + similar-by-mood/genre.
 
 from __future__ import annotations
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, send_file
 from sqlalchemy import func, select
 
 from app.auth.middleware import current_user
+from app.config import Config
 from app.errors import ApiError
 from app.extensions import db
 from app.models import Preference, Song
@@ -42,7 +44,9 @@ def similar_songs(song_id: int):
     """
     target = db.session.get(Song, song_id)
     if target is None:
-        raise ApiError(f"Song {song_id} not found", status_code=404, code="song_not_found")
+        raise ApiError(
+            f"Song {song_id} not found", status_code=404, code="song_not_found"
+        )
 
     if not target.moods and not target.genre:
         return jsonify({"songs": []})
@@ -65,9 +69,9 @@ def similar_songs(song_id: int):
     # Build a query: same genre OR any overlapping mood. SQLite's JSON support
     # is limited; the most portable approach is to fetch the candidate pool
     # and filter in Python.
-    candidates = db.session.execute(
-        select(Song).where(Song.id != target.id)
-    ).scalars().all()
+    candidates = (
+        db.session.execute(select(Song).where(Song.id != target.id)).scalars().all()
+    )
 
     def _score(candidate: Song) -> int:
         score = 0
@@ -87,3 +91,33 @@ def similar_songs(song_id: int):
     ranked.sort(key=_score, reverse=True)
 
     return jsonify({"songs": [serialize_song(s) for s in ranked[:8]]})
+
+
+@songs_bp.get("/<int:song_id>/audio")
+def serve_song_audio(song_id: int):
+    """Stream the MP3 file for a song. The audio_path is relative to
+    Config.AUDIO_DIR. Returns 404 when the song has no audio file.
+    """
+    song = db.session.get(Song, song_id)
+    if song is None:
+        raise ApiError(
+            f"Song {song_id} not found", status_code=404, code="song_not_found"
+        )
+    if not song.audio_path:
+        raise ApiError(
+            f"No audio file for song {song_id}",
+            status_code=404,
+            code="audio_not_found",
+        )
+    audio_file = Config.AUDIO_DIR / song.audio_path
+    if not audio_file.is_file():
+        raise ApiError(
+            f"Audio file not found: {song.audio_path}",
+            status_code=404,
+            code="audio_file_missing",
+        )
+    return send_file(
+        str(audio_file),
+        mimetype="audio/mpeg",
+        as_attachment=False,
+    )

@@ -5,19 +5,20 @@ from __future__ import annotations
 from flask.testing import FlaskClient
 
 
-def test_log_play_requires_auth(client: FlaskClient, make_song) -> None:
+def test_log_play_works_in_stub_mode_without_headers(
+    client: FlaskClient, make_song
+) -> None:
+    """Stub mode auto-creates a dev user."""
     song_id = make_song()
     resp = client.post("/api/history", json={"song_id": song_id})
-    assert resp.status_code == 401
+    assert resp.status_code == 201
 
 
 def test_log_play_returns_201(
     client: FlaskClient, stub_headers: dict[str, str], make_song
 ) -> None:
     song_id = make_song(title="Played Once", genre="jazz")
-    resp = client.post(
-        "/api/history", headers=stub_headers, json={"song_id": song_id}
-    )
+    resp = client.post("/api/history", headers=stub_headers, json={"song_id": song_id})
     assert resp.status_code == 201
     body = resp.get_json()
     assert body["song_id"] == song_id
@@ -47,15 +48,17 @@ def test_log_play_requires_song_id(
 def test_log_play_404_for_unknown_song(
     client: FlaskClient, stub_headers: dict[str, str]
 ) -> None:
-    resp = client.post(
-        "/api/history", headers=stub_headers, json={"song_id": 9999}
-    )
+    resp = client.post("/api/history", headers=stub_headers, json={"song_id": 9999})
     assert resp.status_code == 404
 
 
-def test_list_history_requires_auth(client: FlaskClient) -> None:
+def test_list_history_works_in_stub_mode_without_headers(
+    client: FlaskClient,
+) -> None:
+    """Stub mode auto-creates a dev user."""
     resp = client.get("/api/history")
-    assert resp.status_code == 401
+    assert resp.status_code == 200
+    assert resp.get_json() == {"entries": [], "count": 0}
 
 
 def test_list_history_empty_for_new_user(

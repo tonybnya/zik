@@ -11,6 +11,7 @@ export interface Song {
   bpm: number | null;
   externalUrl: string;
   coverUrl: string | null;
+  audioUrl: string | null;
   /** True when surfaced by the Gemini recommender (Phase 10). */
   isAiPick?: boolean;
 }

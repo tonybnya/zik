@@ -28,6 +28,9 @@ from app.extensions import db
 log = logging.getLogger(__name__)
 
 
+log = logging.getLogger(__name__)
+
+
 def create_app(config_class: Type[Config] | Config = Config) -> Flask:
     """Build and configure a Flask app instance.
 
@@ -39,6 +42,8 @@ def create_app(config_class: Type[Config] | Config = Config) -> Flask:
     app.config.from_object(config_class)
 
     db.init_app(app)
+
+    Config.AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
     origins = [o.strip() for o in app.config["CORS_ORIGINS"].split(",")]
     CORS(

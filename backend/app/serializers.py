@@ -9,10 +9,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from flask import url_for
+
 from app.models import Song
 
 
 def serialize_song(song: Song) -> dict[str, Any]:
+    audio_url: str | None = None
+    if song.audio_path:
+        audio_url = url_for("songs.serve_song_audio", song_id=song.id, _external=True)
     return {
         "id": song.id,
         "title": song.title,
@@ -22,6 +27,7 @@ def serialize_song(song: Song) -> dict[str, Any]:
         "bpm": song.bpm,
         "external_url": song.external_url,
         "cover_url": song.cover_url,
+        "audio_url": audio_url,
     }
 
 

@@ -44,4 +44,6 @@ class PlayHistory(Base, db.Model):  # ty:ignore[unsupported-base]
     song: Mapped[Song] = relationship(back_populates="history")
 
     def __repr__(self) -> str:
-        return f"<PlayHistory user={self.user_id} song={self.song_id} at {self.played_at}>"
+        return (
+            f"<PlayHistory user={self.user_id} song={self.song_id} at {self.played_at}>"
+        )

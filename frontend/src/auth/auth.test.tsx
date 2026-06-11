@@ -63,18 +63,18 @@ describe("useAuth", () => {
 });
 
 describe("AuthProvider (auth-disabled mode)", () => {
-  it("provides a signed-out, unconfigured, loaded context", () => {
+  it("provides a signed-in, unconfigured, loaded context", () => {
     render(
       <AuthProvider>
         <AuthProbe onReady={() => {}} />
       </AuthProvider>,
     );
     expect(screen.getByTestId("configured")).toHaveTextContent("false");
-    expect(screen.getByTestId("signed")).toHaveTextContent("false");
+    expect(screen.getByTestId("signed")).toHaveTextContent("true");
     expect(screen.getByTestId("loaded")).toHaveTextContent("true");
   });
 
-  it("getToken resolves to null and signOut is a no-op", async () => {
+  it("getToken returns stub credentials and signOut is a no-op", async () => {
     let captured: AuthContextValue | null = null;
     render(
       <AuthProvider>
@@ -82,7 +82,7 @@ describe("AuthProvider (auth-disabled mode)", () => {
       </AuthProvider>,
     );
     expect(captured).not.toBeNull();
-    await expect(captured!.getToken()).resolves.toBeNull();
+    await expect(captured!.getToken()).resolves.toBe("dev-user|dev@zik.app");
     await expect(captured!.signOut()).resolves.toBeUndefined();
   });
 

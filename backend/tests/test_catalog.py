@@ -48,7 +48,9 @@ def test_total_song_count() -> None:
         ("synthwave", 30, SYNTHWAVE),
     ],
 )
-def test_genre_count_matches_target(genre: str, expected: int, actual_list: list) -> None:
+def test_genre_count_matches_target(
+    genre: str, expected: int, actual_list: list
+) -> None:
     assert len(actual_list) == expected
     assert all(s["genre"] == genre for s in actual_list)
 
@@ -90,5 +92,8 @@ def test_catalog_validates_against_loader() -> None:
     if not seed_path.exists():
         pytest.skip("songs.json not yet built (run build_catalog)")
 
+    from app.seeds.build_catalog import get_audio_files
+
     loaded = load_seed_data(seed_path)
-    assert len(loaded) == 230
+    expected = sum(1 for s in ALL_SONGS if get_audio_files(s["genre"]))
+    assert len(loaded) == expected, f"{len(loaded)} != {expected}"

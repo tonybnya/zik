@@ -95,7 +95,9 @@ function ClerkAuthBridge({
   );
 }
 
-/** Provides an inert, signed-out context when no Clerk key is set. */
+/** Provides a signed-in stub context when no Clerk key is set.
+ *  The backend's AUTH_MODE=stub reads X-Stub-User-Id / X-Stub-User-Email
+ *  headers, so we inject them in authHeaders() via getToken(). */
 function DisabledAuthBridge({
   modal,
   children,
@@ -107,9 +109,14 @@ function DisabledAuthBridge({
     () => ({
       isLoaded: true,
       isConfigured: false,
-      isSignedIn: false,
-      user: null,
-      getToken: async () => null,
+      isSignedIn: true,
+      user: {
+        id: "dev-user",
+        email: "dev@zik.app",
+        fullName: "Dev User",
+        imageUrl: null,
+      },
+      getToken: async () => "dev-user|dev@zik.app",
       signOut: async () => {},
       ...modal,
     }),

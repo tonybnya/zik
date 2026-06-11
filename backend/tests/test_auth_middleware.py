@@ -34,9 +34,7 @@ def test_stub_headers_reuse_existing_user(client: FlaskClient, app) -> None:
     from app.models import User
 
     with app.app_context():
-        db.session.add(
-            User(clerk_id="clerk_existing", email="existing@x.com")
-        )
+        db.session.add(User(clerk_id="clerk_existing", email="existing@x.com"))
         db.session.commit()
 
     for _ in range(2):
@@ -49,14 +47,13 @@ def test_stub_headers_reuse_existing_user(client: FlaskClient, app) -> None:
         )
 
     with app.app_context():
-        assert (
-            db.session.query(User).filter_by(clerk_id="clerk_existing").count()
-            == 1
-        )
+        assert db.session.query(User).filter_by(clerk_id="clerk_existing").count() == 1
 
 
-def test_partial_stub_headers_are_ignored(client: FlaskClient, app) -> None:
-    """Only one header is present; the request stays anonymous and no user is created."""
+def test_partial_stub_headers_fall_through_to_auto_auth(
+    client: FlaskClient, app
+) -> None:
+    """Only one header is present; the default dev user is auto-created."""
     from app.extensions import db
     from app.models import User
 
@@ -67,13 +64,18 @@ def test_partial_stub_headers_are_ignored(client: FlaskClient, app) -> None:
     assert resp.status_code == 200
 
     with app.app_context():
-        assert db.session.query(User).count() == 0
+        assert db.session.query(User).count() == 1
+        u = db.session.query(User).filter_by(clerk_id="dev-user").one()
+        assert u.email == "dev@zik.app"
 
 
-def test_authenticated_route_requires_stub_headers(client: FlaskClient) -> None:
+def test_authenticated_route_works_in_stub_mode_without_headers(
+    client: FlaskClient,
+) -> None:
+    """Stub mode auto-creates a dev user so auth-gated endpoints succeed."""
     resp = client.get("/api/favorites")
-    assert resp.status_code == 401
-    assert resp.get_json()["error"] == "unauthorized"
+    assert resp.status_code == 200
+    assert resp.get_json() == {"songs": [], "count": 0}
 
 
 def test_authenticated_route_works_with_stub_headers(

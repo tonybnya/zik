@@ -24,9 +24,7 @@ def test_random_404_when_library_empty(client: FlaskClient) -> None:
     assert resp.get_json()["error"] == "library_empty"
 
 
-def test_random_works_without_auth_headers(
-    client: FlaskClient, make_song
-) -> None:
+def test_random_works_without_auth_headers(client: FlaskClient, make_song) -> None:
     make_song()
     resp = client.get("/api/songs/random")
     assert resp.status_code == 200
@@ -109,7 +107,9 @@ def test_similar_boosts_user_preferred_genre(
     make_song(title="Mood Match", genre="ambient", moods=["bright"])
 
     # Set user prefs to lofi.
-    client.put("/api/preferences", json={"preferred_genres": ["lofi"]}, headers=stub_headers)
+    client.put(
+        "/api/preferences", json={"preferred_genres": ["lofi"]}, headers=stub_headers
+    )
 
     resp = client.get(f"/api/songs/{target}/similar", headers=stub_headers)
     titles = [s["title"] for s in resp.get_json()["songs"]]

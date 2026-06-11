@@ -30,12 +30,12 @@ def toggle_favorite():
 
     song = db.session.get(Song, song_id)
     if song is None:
-        raise ApiError(f"Song {song_id} not found", status_code=404, code="song_not_found")
+        raise ApiError(
+            f"Song {song_id} not found", status_code=404, code="song_not_found"
+        )
 
     existing = db.session.execute(
-        select(Favorite).where(
-            Favorite.user_id == user.id, Favorite.song_id == song_id
-        )
+        select(Favorite).where(Favorite.user_id == user.id, Favorite.song_id == song_id)
     ).scalar_one_or_none()
 
     if existing is not None:
@@ -53,10 +53,14 @@ def toggle_favorite():
 def list_favorites():
     """Return all songs the current user has favorited, newest first."""
     user = current_user()
-    rows = db.session.execute(
-        select(Favorite)
-        .where(Favorite.user_id == user.id)
-        .order_by(Favorite.saved_at.desc(), Favorite.id.desc())
-    ).scalars().all()
+    rows = (
+        db.session.execute(
+            select(Favorite)
+            .where(Favorite.user_id == user.id)
+            .order_by(Favorite.saved_at.desc(), Favorite.id.desc())
+        )
+        .scalars()
+        .all()
+    )
     songs = [serialize_song(f.song) for f in rows if f.song is not None]
     return jsonify({"songs": songs, "count": len(songs)})

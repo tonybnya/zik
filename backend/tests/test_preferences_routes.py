@@ -5,9 +5,13 @@ from __future__ import annotations
 from flask.testing import FlaskClient
 
 
-def test_get_preferences_requires_auth(client: FlaskClient) -> None:
+def test_get_preferences_works_in_stub_mode_without_headers(
+    client: FlaskClient,
+) -> None:
+    """Stub mode auto-creates a dev user."""
     resp = client.get("/api/preferences")
-    assert resp.status_code == 401
+    assert resp.status_code == 200
+    assert resp.get_json()["preferred_genres"] == []
 
 
 def test_get_creates_empty_preferences(
@@ -47,9 +51,7 @@ def test_update_replaces_preferences(
     assert body["preferred_moods"] == ["calm"]
 
 
-def test_update_partial(
-    client: FlaskClient, stub_headers: dict[str, str]
-) -> None:
+def test_update_partial(client: FlaskClient, stub_headers: dict[str, str]) -> None:
     """Updating only one field leaves the other untouched."""
     client.put(
         "/api/preferences",

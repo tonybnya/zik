@@ -79,9 +79,13 @@ def _set_error(mocks, message: str = "network down") -> None:
 # --- Auth + empty cases (kept from Phase 4) --------------------------------
 
 
-def test_recommendations_requires_auth(client: FlaskClient) -> None:
+def test_recommendations_works_in_stub_mode_without_headers(
+    client: FlaskClient,
+) -> None:
+    """Stub mode auto-creates a dev user — recommendations returns empty list."""
     resp = client.get("/api/recommendations")
-    assert resp.status_code == 401
+    assert resp.status_code == 200
+    assert resp.get_json()["songs"] == []
 
 
 def test_recommendations_falls_back_when_no_history(
@@ -113,20 +117,32 @@ def test_recommendations_returns_gemini_suggestions_that_match_db(
     make_song,
     gemini_mocks,
 ) -> None:
-    target = make_song(title="Rainy Window", artist="Tape Deck", genre="lofi",
-                        moods=["calm", "focus"])
+    target = make_song(
+        title="Rainy Window", artist="Tape Deck", genre="lofi", moods=["calm", "focus"]
+    )
     make_song(title="Other", artist="X", genre="jazz", moods=["calm"])
     # Seed one play so the route will call Gemini.
     client_with_service.post(
         "/api/history", headers=stub_headers, json={"song_id": target}
     )
 
-    _set_response(gemini_mocks, [
-        {"title": "Rainy Window", "artist": "Tape Deck",
-         "genre": "lofi", "moods": ["calm"]},
-        {"title": "Not In Library", "artist": "Ghost",
-         "genre": "ambient", "moods": ["focus"]},
-    ])
+    _set_response(
+        gemini_mocks,
+        [
+            {
+                "title": "Rainy Window",
+                "artist": "Tape Deck",
+                "genre": "lofi",
+                "moods": ["calm"],
+            },
+            {
+                "title": "Not In Library",
+                "artist": "Ghost",
+                "genre": "ambient",
+                "moods": ["focus"],
+            },
+        ],
+    )
 
     body = client_with_service.get(
         "/api/recommendations", headers=stub_headers
@@ -146,9 +162,7 @@ def test_recommendations_falls_back_on_gemini_error(
 ) -> None:
     make_song(title="Played", genre="lofi")
     # 1 history entry
-    client_with_service.post(
-        "/api/history", headers=stub_headers, json={"song_id": 1}
-    )
+    client_with_service.post("/api/history", headers=stub_headers, json={"song_id": 1})
     make_song(title="Fav", genre="lofi")
     client_with_service.post(
         "/api/favorites", headers=stub_headers, json={"song_id": 2}
@@ -181,10 +195,13 @@ def test_recommendations_falls_back_when_no_gemini_matches(
     )
 
     # All suggestions point to songs we don't have → route falls back to favorites.
-    _set_response(gemini_mocks, [
-        {"title": "Ghost 1", "artist": "X", "genre": "lofi", "moods": ["calm"]},
-        {"title": "Ghost 2", "artist": "Y", "genre": "lofi", "moods": ["focus"]},
-    ])
+    _set_response(
+        gemini_mocks,
+        [
+            {"title": "Ghost 1", "artist": "X", "genre": "lofi", "moods": ["calm"]},
+            {"title": "Ghost 2", "artist": "Y", "genre": "lofi", "moods": ["focus"]},
+        ],
+    )
 
     body = client_with_service.get(
         "/api/recommendations", headers=stub_headers
@@ -204,16 +221,15 @@ def test_recommendations_passes_history_to_prompt(
     """The route should send at least the most recent play to Gemini."""
     a = make_song(title="First", genre="lofi", moods=["calm"])
     b = make_song(title="Second", genre="jazz", moods=["focus"])
-    client_with_service.post(
-        "/api/history", headers=stub_headers, json={"song_id": a}
-    )
-    client_with_service.post(
-        "/api/history", headers=stub_headers, json={"song_id": b}
-    )
+    client_with_service.post("/api/history", headers=stub_headers, json={"song_id": a})
+    client_with_service.post("/api/history", headers=stub_headers, json={"song_id": b})
 
-    _set_response(gemini_mocks, [
-        {"title": "First", "artist": "X", "genre": "lofi", "moods": ["calm"]},
-    ])
+    _set_response(
+        gemini_mocks,
+        [
+            {"title": "First", "artist": "X", "genre": "lofi", "moods": ["calm"]},
+        ],
+    )
 
     client_with_service.get("/api/recommendations", headers=stub_headers)
 
@@ -238,13 +254,15 @@ def test_recommendations_sends_preferences_to_prompt(
         json={"preferred_genres": ["ambient"], "preferred_moods": ["focus"]},
     )
 
-    _set_response(gemini_mocks, [
-        {"title": "Picked", "artist": "X", "genre": "lofi", "moods": ["calm"]},
-    ])
+    _set_response(
+        gemini_mocks,
+        [
+            {"title": "Picked", "artist": "X", "genre": "lofi", "moods": ["calm"]},
+        ],
+    )
 
     client_with_service.get("/api/recommendations", headers=stub_headers)
 
     contents = gemini_mocks.last_call["contents"]
     assert "ambient" in contents
     assert "focus" in contents
-

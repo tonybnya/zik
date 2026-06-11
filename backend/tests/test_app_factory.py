@@ -20,14 +20,15 @@ def test_create_app_returns_flask_instance() -> None:
 
 def test_create_app_registers_cors() -> None:
     from app.app_factory import create_app
-
     from app.config import Config
+    from app.extensions import db
 
     class C(Config):
         SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
     app = create_app(C)
-    # CORS adds the cors extension, not just a header; check via a request
+    with app.app_context():
+        db.create_all()
     with app.test_client() as c:
         resp = c.options(
             "/api/songs/random",

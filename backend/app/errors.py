@@ -50,7 +50,9 @@ def register_error_handlers(app: Flask) -> None:
     @app.errorhandler(HTTPException)
     def _handle_http_exception(err: HTTPException) -> Any:
         return (
-            jsonify({"error": _default_code(err.code or 500), "message": err.description}),
+            jsonify(
+                {"error": _default_code(err.code or 500), "message": err.description}
+            ),
             err.code or 500,
         )
 
@@ -58,6 +60,11 @@ def register_error_handlers(app: Flask) -> None:
     def _handle_unexpected(err: Exception) -> Any:
         log.exception("Unhandled exception: %s", err)
         return (
-            jsonify({"error": "internal_server_error", "message": "An unexpected error occurred."}),
+            jsonify(
+                {
+                    "error": "internal_server_error",
+                    "message": "An unexpected error occurred.",
+                }
+            ),
             500,
         )

@@ -23,7 +23,13 @@ log = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "gemini-2.5-flash"
 ALLOWED_GENRES = {
-    "lofi", "ambient", "classical", "jazz", "nature", "cinematic", "synthwave",
+    "lofi",
+    "ambient",
+    "classical",
+    "jazz",
+    "nature",
+    "cinematic",
+    "synthwave",
 }
 MAX_SUGGESTIONS = 5
 
@@ -39,6 +45,7 @@ class Suggestion:
     """A single song suggestion straight from Gemini. The route layer maps
     these to real DB rows by (title, artist) when possible.
     """
+
     title: str
     artist: str
     genre: str
@@ -64,7 +71,7 @@ def build_prompt(
         for i, h in enumerate(reversed(history[:10]), start=1):
             recent_lines.append(
                 f'{i}. "{h["title"]}" by {h["artist"]} '
-                f'(genre: {h["genre"]}, moods: {", ".join(h.get("moods", []))})'
+                f"(genre: {h['genre']}, moods: {', '.join(h.get('moods', []))})"
             )
         recent = "\n".join(recent_lines)
     else:
@@ -127,9 +134,7 @@ def parse_suggestions(raw: str) -> list[Suggestion]:
         moods = [str(m).strip().lower() for m in moods_raw if str(m).strip()]
         if not moods:
             continue
-        out.append(
-            Suggestion(title=title, artist=artist, genre=genre, moods=moods)
-        )
+        out.append(Suggestion(title=title, artist=artist, genre=genre, moods=moods))
     if not out:
         raise GeminiError("Gemini response had no usable suggestions")
     return out

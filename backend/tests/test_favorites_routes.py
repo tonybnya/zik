@@ -5,9 +5,12 @@ from __future__ import annotations
 from flask.testing import FlaskClient
 
 
-def test_list_favorites_requires_auth(client: FlaskClient) -> None:
+def test_list_favorites_works_in_stub_mode_without_headers(
+    client: FlaskClient,
+) -> None:
+    """Stub mode auto-creates a dev user."""
     resp = client.get("/api/favorites")
-    assert resp.status_code == 401
+    assert resp.status_code == 200
 
 
 def test_list_favorites_empty_for_new_user(
@@ -75,16 +78,12 @@ def test_toggle_requires_song_id(
 def test_toggle_404_for_unknown_song(
     client: FlaskClient, stub_headers: dict[str, str]
 ) -> None:
-    resp = client.post(
-        "/api/favorites", headers=stub_headers, json={"song_id": 9999}
-    )
+    resp = client.post("/api/favorites", headers=stub_headers, json={"song_id": 9999})
     assert resp.status_code == 404
     assert resp.get_json()["error"] == "song_not_found"
 
 
-def test_favorites_isolated_per_user(
-    client: FlaskClient, make_song
-) -> None:
+def test_favorites_isolated_per_user(client: FlaskClient, make_song) -> None:
     song_id = make_song()
     alice = {"X-Stub-User-Id": "alice", "X-Stub-User-Email": "alice@x.com"}
     bob = {"X-Stub-User-Id": "bob", "X-Stub-User-Email": "bob@x.com"}

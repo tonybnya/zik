@@ -48,6 +48,7 @@ const SONG: Song = {
   bpm: 70,
   externalUrl: "#",
   coverUrl: null,
+  audioUrl: "/api/songs/1/audio",
 };
 const SIM: Song[] = [
   { ...SONG, id: 2, title: "B" },

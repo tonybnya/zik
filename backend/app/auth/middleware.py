@@ -2,19 +2,23 @@
 Script Name : middleware.py
 Description : Request-scoped auth. Two modes:
 
-                AUTH_MODE=stub   — reads X-Stub-User-Id / X-Stub-User-Email
-                                   headers (dev only, bypasses real auth).
+                AUTH_MODE=stub   — auto-creates a dev user (dev-user /
+                                    dev@zik.app) when no credentials are
+                                    present. Also tries X-Stub-User-Id /
+                                    X-Stub-User-Email headers and
+                                    Authorization: Bearer <id>|<email>
+                                    for test overrides.
                 AUTH_MODE=clerk  — verifies an Authorization: Bearer JWT
-                                   using Clerk's JWKS public key (prod).
+                                    using Clerk's JWKS public key (prod).
 
-              Exposes:
-                current_user()  — Flask view helper; raises ApiError(401)
-                                   if no user is on the request.
-                require_user    — decorator that wraps a view to require
-                                   authentication.
-                resolve_user    — internal: turn a (clerk_id, email) pair
-                                   into a User row, creating it on first
-                                   use (idempotent upsert).
+               Exposes:
+                 current_user()  — Flask view helper; raises ApiError(401)
+                                    if no user is on the request.
+                 require_user    — decorator that wraps a view to require
+                                    authentication.
+                 resolve_user    — internal: turn a (clerk_id, email) pair
+                                    into a User row, creating it on first
+                                    use (idempotent upsert).
 
 Author      : @tonybnya
 """
@@ -41,9 +45,15 @@ log = logging.getLogger(__name__)
 def _stub_credentials() -> tuple[str, str] | None:
     clerk_id = request.headers.get("X-Stub-User-Id")
     email = request.headers.get("X-Stub-User-Email")
-    if not clerk_id or not email:
-        return None
-    return clerk_id, email
+    if clerk_id and email:
+        return clerk_id, email
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        token = auth.removeprefix("Bearer ").strip()
+        parts = token.split("|")
+        if len(parts) == 2:
+            return parts[0], parts[1]
+    return None
 
 
 def _clerk_credentials() -> tuple[str, str] | None:
@@ -86,6 +96,9 @@ def _load_user() -> None:
     creds: tuple[str, str] | None
     if mode == "stub":
         creds = _stub_credentials()
+        if creds is None:
+            g.user = resolve_user("dev-user", "dev@zik.app")
+            return
     elif mode == "clerk":
         creds = _clerk_credentials()
     else:

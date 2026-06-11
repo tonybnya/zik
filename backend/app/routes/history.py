@@ -30,7 +30,9 @@ def log_play():
 
     song = db.session.get(Song, song_id)
     if song is None:
-        raise ApiError(f"Song {song_id} not found", status_code=404, code="song_not_found")
+        raise ApiError(
+            f"Song {song_id} not found", status_code=404, code="song_not_found"
+        )
 
     entry = PlayHistory(user_id=user.id, song_id=song_id)
     entry.save(db.session)
@@ -42,12 +44,16 @@ def log_play():
 def list_history():
     """Return the current user's last 50 plays, newest first."""
     user = current_user()
-    rows = db.session.execute(
-        select(PlayHistory)
-        .where(PlayHistory.user_id == user.id)
-        .order_by(PlayHistory.played_at.desc(), PlayHistory.id.desc())
-        .limit(50)
-    ).scalars().all()
+    rows = (
+        db.session.execute(
+            select(PlayHistory)
+            .where(PlayHistory.user_id == user.id)
+            .order_by(PlayHistory.played_at.desc(), PlayHistory.id.desc())
+            .limit(50)
+        )
+        .scalars()
+        .all()
+    )
     return jsonify(
         {
             "entries": [serialize_history_entry(h) for h in rows],

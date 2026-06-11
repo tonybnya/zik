@@ -45,12 +45,16 @@ def _get_service() -> GeminiService:
 
 
 def _load_history(user_id: int) -> list[dict[str, Any]]:
-    rows = db.session.execute(
-        select(PlayHistory)
-        .where(PlayHistory.user_id == user_id)
-        .order_by(PlayHistory.played_at.desc(), PlayHistory.id.desc())
-        .limit(HISTORY_LIMIT)
-    ).scalars().all()
+    rows = (
+        db.session.execute(
+            select(PlayHistory)
+            .where(PlayHistory.user_id == user_id)
+            .order_by(PlayHistory.played_at.desc(), PlayHistory.id.desc())
+            .limit(HISTORY_LIMIT)
+        )
+        .scalars()
+        .all()
+    )
     out: list[dict[str, Any]] = []
     for row in rows:
         if row.song is None:
@@ -84,19 +88,23 @@ def _cross_reference(suggestions) -> list[Song]:
     if not suggestions:
         return []
     pairs = {(s.title.lower(), s.artist.lower()): s for s in suggestions}
-    rows = db.session.execute(
-        select(Song).where(
-            db.or_(
-                *[
-                    db.and_(
-                        db.func.lower(Song.title) == t,
-                        db.func.lower(Song.artist) == a,
-                    )
-                    for (t, a) in pairs.keys()
-                ]
+    rows = (
+        db.session.execute(
+            select(Song).where(
+                db.or_(
+                    *[
+                        db.and_(
+                            db.func.lower(Song.title) == t,
+                            db.func.lower(Song.artist) == a,
+                        )
+                        for (t, a) in pairs.keys()
+                    ]
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     matched: list[Song] = []
     for song in rows:
         key = (song.title.lower(), song.artist.lower())
@@ -106,12 +114,16 @@ def _cross_reference(suggestions) -> list[Song]:
 
 
 def _favorites_fallback(user_id: int) -> list[Song]:
-    rows = db.session.execute(
-        select(Favorite)
-        .where(Favorite.user_id == user_id)
-        .order_by(Favorite.saved_at.desc(), Favorite.id.desc())
-        .limit(RESULT_LIMIT)
-    ).scalars().all()
+    rows = (
+        db.session.execute(
+            select(Favorite)
+            .where(Favorite.user_id == user_id)
+            .order_by(Favorite.saved_at.desc(), Favorite.id.desc())
+            .limit(RESULT_LIMIT)
+        )
+        .scalars()
+        .all()
+    )
     return [f.song for f in rows if f.song is not None]
 
 

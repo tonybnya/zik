@@ -27,11 +27,20 @@ export interface PlayerState {
   /** Fetch a random song, play it, and load similar songs. */
   playRandom: () => Promise<void>;
   /** Toggle play/pause; on the very first play, fetches a random song. */
-  togglePlay: () => void;
+  togglePlay: () => Promise<void>;
   /** Switch to a bubble's song and refresh similar songs. */
   selectSong: (song: Song) => Promise<void>;
   /** Toggle favorite for the current song (auth required). */
   toggleFavorite: (song: Song) => Promise<void>;
+}
+
+const audioRef: { current: HTMLAudioElement | null } = { current: null };
+
+function getAudio(): HTMLAudioElement {
+  if (!audioRef.current) {
+    audioRef.current = new Audio();
+  }
+  return audioRef.current;
 }
 
 /**
@@ -75,6 +84,22 @@ export function usePlayer(): PlayerState {
       cancelled = true;
     };
   }, [isSignedIn, getToken]);
+
+  // Sync isPlaying with the audio element's actual state.
+  useEffect(() => {
+    const audio = getAudio();
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("ended", onEnded);
+    return () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("ended", onEnded);
+    };
+  }, []);
 
   const favoriteIds = useMemo(
     () => (isSignedIn ? signedInFavoriteIds : new Set<number>()),
@@ -124,17 +149,30 @@ export function usePlayer(): PlayerState {
     };
   }, [playCount, isSignedIn, getToken]);
 
+  const playSong = useCallback(async (next: Song) => {
+    setSong(next);
+    setError(null);
+    setIsPlaying(true);
+    setPlayCount((c) => c + 1);
+    await loadSimilar(next.id);
+    const token = isSignedIn ? await getToken() : null;
+    void logPlay(Number(next.id), token);
+    const audio = getAudio();
+    if (next.audioUrl) {
+      audio.src = next.audioUrl;
+      const p = audio.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {});
+      }
+    }
+  }, [loadSimilar, isSignedIn, getToken]);
+
   const playRandom = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const next = await fetchRandomSong();
-      setSong(next);
-      setIsPlaying(true);
-      setPlayCount((c) => c + 1);
-      await loadSimilar(next.id);
-      const token = isSignedIn ? await getToken() : null;
-      void logPlay(Number(next.id), token);
+      await playSong(next);
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : "Something went wrong.";
@@ -143,27 +181,34 @@ export function usePlayer(): PlayerState {
     } finally {
       setIsLoading(false);
     }
-  }, [loadSimilar, isSignedIn, getToken]);
+  }, [playSong]);
 
   const togglePlay = useCallback(() => {
     if (!song) {
       void playRandom();
       return;
     }
-    setIsPlaying((p) => !p);
-  }, [song, playRandom]);
+    if (isPlaying) {
+      const audio = getAudio();
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      const audio = getAudio();
+      if (song.audioUrl) {
+        if (!audio.src) audio.src = song.audioUrl;
+        const p = audio.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } else {
+        setIsPlaying(true);
+      }
+    }
+  }, [song, playRandom, isPlaying]);
 
   const selectSong = useCallback(
     async (next: Song) => {
-      setSong(next);
-      setIsPlaying(true);
-      setError(null);
-      setPlayCount((c) => c + 1);
-      await loadSimilar(next.id);
-      const token = isSignedIn ? await getToken() : null;
-      void logPlay(Number(next.id), token);
+      await playSong(next);
     },
-    [loadSimilar, isSignedIn, getToken],
+    [playSong],
   );
 
   const toggleFavorite = useCallback(

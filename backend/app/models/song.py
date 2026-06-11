@@ -1,7 +1,8 @@
 """
 Script Name : song.py
 Description : Song model — the core library entry. Public-domain / royalty-free
-              focus music. external_url is the link to the listening source.
+              focus music. audio_path points to the local audio file; external_url
+              is preserved as a fallback source reference.
 Author      : @tonybnya
 """
 
@@ -31,6 +32,7 @@ class Song(Base, TimestampMixin, db.Model):  # ty:ignore[unsupported-base]
     bpm: Mapped[int | None] = mapped_column(nullable=True)
     external_url: Mapped[str] = mapped_column(String(1024), nullable=False)
     cover_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    audio_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
     favorites: Mapped[list[Favorite]] = relationship(
         back_populates="song", cascade="all, delete-orphan"

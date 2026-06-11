@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { FavouriteIcon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { FavouriteIcon } from "@hugeicons/core-free-icons";
 
 import type { Song } from "../../types/song";
 
@@ -11,9 +11,9 @@ interface NowPlayingProps {
 }
 
 /**
- * Fixed footer bar showing the current track with an external listen link and a
- * favorite toggle (Tasks 8.7, 8.8). Slides in once a song is playing. The
- * favorite action is auth-gated upstream (usePlayer prompts sign-in).
+ * Fixed footer bar showing the current track with a favorite toggle
+ * (Tasks 8.7, 8.8). Audio plays inline via the HTMLAudioElement managed by
+ * usePlayer. The favorite action is auth-gated upstream.
  */
 export function NowPlaying({
   song,
@@ -57,16 +57,6 @@ export function NowPlaying({
                 strokeWidth={isFavorite ? 2.4 : 1.8}
               />
             </button>
-
-            <a
-              href={song.externalUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="btn-primary gap-1.5 px-4 py-2.5"
-            >
-              Listen
-              <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} strokeWidth={2} />
-            </a>
           </div>
         </motion.div>
       )}
